@@ -63,14 +63,6 @@ class DeepSchemeScraper:
         except Exception as e:
             log.debug(f"Skipping {url} due to parsing limit/error: {e}")
 
-async def run(self):
-        for child_url in list(set(child_urls))[:8]: 
-                await self.crawl_page(page, child_url, depth + 1)
-
-        except Exception as e:
-            log.debug(f"Skipping {url} due to parsing limit/error: {e}")
-
-    # Shifting this back to line up perfectly with "def crawl_page"
     async def run(self):
         async with async_playwright() as p:
             # 1. Launch with arguments that bypass standard sandbox flags
@@ -104,13 +96,6 @@ async def run(self):
             await browser.close()
             
         return self.extracted_schemes
-            await page.add_init_script("delete navigator.__proto__.webdriver;")
-            
-            # Execute crawl
-            await self.crawl_page(page, self.start_url, depth=1)
-            await browser.close()
-            
-        return self.extracted_schemes
 
 # ─────────────────────────────────────────────────────────
 #  PIPELINE ENTRY POINT (What main.py looks for)
@@ -120,7 +105,7 @@ def run_all_scrapers():
     Master orchestrator wrapper execution function. 
     Returns an array of scraped opportunity objects.
     """
-    # Define your target entry link here
+    # Target entry link containing multiple listing setups
     TARGET_LINK = "https://www.startupindia.gov.in/content/sih/en/ams-application/application-listing.html"
     
     log.info(f"Initiating Deep Dynamic Scraper entry point for: {TARGET_LINK}")
