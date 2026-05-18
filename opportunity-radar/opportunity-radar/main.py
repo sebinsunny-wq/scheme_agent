@@ -35,7 +35,7 @@ def main():
     # ── 1. Web scraping ──────────────────────────────────────
     step("Web Scraping")
     try:
-        from scrapers.web_scraper import run_all_scrapers
+        from scrapers.web1 import run_all_scrapers
         web_opps = run_all_scrapers()
         log.info(f"Web scraper: {len(web_opps)} opportunities")
     except Exception as e:
