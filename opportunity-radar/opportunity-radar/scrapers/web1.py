@@ -81,7 +81,7 @@ def run_all_scrapers():
     Returns an array of scraped opportunity objects.
     """
     # Define your target entry link here
-    TARGET_LINK = "https://www.startupindia.gov.in/content/sih/en/incubator-schemes.html"
+    TARGET_LINK = "https://www.startupindia.gov.in/content/sih/en/ams-application/application-listing.html"
     
     log.info(f"Initiating Deep Dynamic Scraper entry point for: {TARGET_LINK}")
     scraper = DeepSchemeScraper(start_url=TARGET_LINK, max_depth=2, max_pages=15)
