@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpportunityRadar — Grants, Fellowships & Startup Schemes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0f1e;
+    --surface:  #111827;
+    --border:   #1f2937;
+    --text:     #e2e8f0;
+    --muted:    #94a3b8;
+    --accent:   #38bdf8;
+    --accent2:  #818cf8;
+    --radius:   12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0a0f1e 0%, #0f1e3d 50%, #0a0f1e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 1.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(56,189,248,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(56,189,248,.12);
+    border: 1px solid rgba(56,189,248,.3);
+    color: var(--accent);
+    font-size: .75rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    padding: .35rem .9rem;
+    border-radius: 99px;
+    margin-bottom: 1.2rem;
+    font-family: 'Syne', sans-serif;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #e2e8f0 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+  }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 540px;
+    margin: 0 auto 1.5rem;
+  }
+  .stats-row {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .stat-chip {
+    text-align: center;
+  }
+  .stat-chip strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-chip span {
+    font-size: .8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  /* FILTERS */
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(10,15,30,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar input, .toolbar select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    font-size: .9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .toolbar input { flex: 1; min-width: 200px; }
+  .toolbar input:focus, .toolbar select:focus { border-color: var(--accent) }
+  .toolbar select { cursor: pointer }
+  #result-count {
+    margin-left: auto;
+    font-size: .85rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(56,189,248,.35);
+    box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  }
+  .card-accent {
+    height: 3px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+  .card-body { padding: 1.2rem; display: flex; flex-direction: column; gap: .6rem; flex: 1 }
+  .card-meta { display: flex; align-items: center; justify-content: space-between }
+  .badge {
+    font-size: .7rem;
+    font-weight: 600;
+    padding: .2rem .65rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .source { font-size: .72rem; color: var(--muted) }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; line-height: 1.35 }
+  .card-title a { color: var(--text); text-decoration: none }
+  .card-title a:hover { color: var(--accent) }
+  .org { font-size: .82rem; color: var(--accent2) }
+  .summary { font-size: .85rem; color: var(--muted); line-height: 1.55; flex: 1 }
+  .card-footer { margin-top: auto }
+  .card-stats { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem }
+  .stat { font-size: .75rem; color: var(--muted) }
+  .stat.deadline { color: #f59e0b }
+  .tags { display: flex; flex-wrap: wrap; gap: .3rem }
+  .tag {
+    background: rgba(129,140,248,.12);
+    color: var(--accent2);
+    font-size: .68rem;
+    padding: .15rem .5rem;
+    border-radius: 99px;
+    border: 1px solid rgba(129,140,248,.25);
+  }
+  .apply-btn {
+    display: block;
+    margin-top: .8rem;
+    text-align: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0a0f1e;
+    font-weight: 600;
+    font-size: .85rem;
+    padding: .6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity .2s;
+  }
+  .apply-btn:hover { opacity: .85 }
+
+  .hidden { display: none !important }
+  .no-results {
+    grid-column: 1/-1;
+    text-align: center;
+    color: var(--muted);
+    padding: 4rem 1rem;
+    font-size: 1.1rem;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: .8rem;
+    padding: 2rem 1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🛰 Auto-Updated Every 6 Hours</div>
+  <h1>OpportunityRadar</h1>
+  <p class="hero-sub">AI-curated grants, fellowships, accelerators & startup schemes — all in one place.</p>
+  <div class="stats-row">
+    <div class="stat-chip"><strong>6</strong><span>Opportunities</span></div>
+    <div class="stat-chip"><strong>6</strong><span>Categories</span></div>
+    <div class="stat-chip"><strong>6</strong><span>Sectors</span></div>
+    <div class="stat-chip"><strong>⚡</strong><span>Last updated 18 May 2026, 03:34 UTC</span></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="🔍  Search by title, keyword, org…">
+  <select id="filter-cat">
+    <option value="">All Categories</option>
+    <option value="Accelerator">Accelerator</option>
+<option value="CSR Opportunity">CSR Opportunity</option>
+<option value="Fellowship">Fellowship</option>
+<option value="Grant">Grant</option>
+<option value="Incubation">Incubation</option>
+<option value="Innovation Challenge">Innovation Challenge</option>
+  </select>
+  <select id="filter-sec">
+    <option value="">All Sectors</option>
+    <option value="AI/DeepTech">AI/DeepTech</option>
+<option value="Biotech">Biotech</option>
+<option value="CleanTech">CleanTech</option>
+<option value="FinTech">FinTech</option>
+<option value="General / Mixed">General / Mixed</option>
+<option value="Social Impact">Social Impact</option>
+  </select>
+  <select id="filter-sta">
+    <option value="">All States</option>
+    <option value="Central">Central</option>
+<option value="Gujarat">Gujarat</option>
+<option value="Kerala">Kerala</option>
+  </select>
+  <span id="result-count">6 results</span>
+</div>
+
+<div class="grid" id="grid">
+  
+    <div class="card" data-category="Grant" data-sector="General / Mixed" data-state="Central">
+      <div class="card-accent" style="background:#10b981"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#10b98120;color:#10b981">Grant</span>
+          <span class="source">Startup India</span>
+        </div>
+        <h3 class="card-title"><a href="https://www.startupindia.gov.in" target="_blank" rel="noopener">Startup India Seed Fund Scheme</a></h3>
+        <p class="org">🏢 DPIIT / Startup India</p>
+        <p class="summary">A government seed fund offering up to ₹20L for early-stage DPIIT-recognised startups to develop prototypes and enter market.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 ₹20 Lakh</span>
+            <span class="stat deadline">📅 31 Aug 2025</span>
+            <span class="stat">📍 Central</span>
+          </div>
+          <div class="tags"><span class="tag">grant</span><span class="tag">startup</span><span class="tag">seed</span><span class="tag">india</span></div>
+        </div>
+        <a href="https://www.startupindia.gov.in" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+
+    <div class="card" data-category="Fellowship" data-sector="Biotech" data-state="Central">
+      <div class="card-accent" style="background:#6366f1"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#6366f120;color:#6366f1">Fellowship</span>
+          <span class="source">BIRAC</span>
+        </div>
+        <h3 class="card-title"><a href="https://birac.nic.in" target="_blank" rel="noopener">BIRAC SPARSH Fellowship 2025</a></h3>
+        <p class="org">🏢 BIRAC</p>
+        <p class="summary">BIRAC SPARSH offers ₹30L fellowship for biotech innovators with institutional mentorship.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 ₹30 Lakh</span>
+            <span class="stat deadline">📅 15 July 2025</span>
+            <span class="stat">📍 Central</span>
+          </div>
+          <div class="tags"><span class="tag">fellowship</span><span class="tag">biotech</span><span class="tag">research</span><span class="tag">grant</span></div>
+        </div>
+        <a href="https://birac.nic.in" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+
+    <div class="card" data-category="Innovation Challenge" data-sector="CleanTech" data-state="Kerala">
+      <div class="card-accent" style="background:#ec4899"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#ec489920;color:#ec4899">Innovation Challenge</span>
+          <span class="source">Kerala Startup Mission</span>
+        </div>
+        <h3 class="card-title"><a href="https://startupmission.kerala.gov.in" target="_blank" rel="noopener">Kerala Startup Mission Innovation Challenge</a></h3>
+        <p class="org">🏢 KSUM</p>
+        <p class="summary">KSUM annual challenge with ₹10L prize for CleanTech, AgriTech and HealthTech startups registered in Kerala.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 ₹10 Lakh</span>
+            <span class="stat deadline">📅 20 July 2025</span>
+            <span class="stat">📍 Kerala</span>
+          </div>
+          <div class="tags"><span class="tag">challenge</span><span class="tag">cleantech</span><span class="tag">kerala</span><span class="tag">innovation</span></div>
+        </div>
+        <a href="https://startupmission.kerala.gov.in" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+
+    <div class="card" data-category="Accelerator" data-sector="AI/DeepTech" data-state="Central">
+      <div class="card-accent" style="background:#f59e0b"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#f59e0b20;color:#f59e0b">Accelerator</span>
+          <span class="source">DST</span>
+        </div>
+        <h3 class="card-title"><a href="https://dst.gov.in" target="_blank" rel="noopener">DST NIDHI Accelerator Programme</a></h3>
+        <p class="org">🏢 DST India</p>
+        <p class="summary">DST NIDHI accelerates deep-tech startups with up to ₹50L funding, IP support and global market access.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 ₹50 Lakh</span>
+            <span class="stat deadline">📅 30 Sep 2025</span>
+            <span class="stat">📍 Central</span>
+          </div>
+          <div class="tags"><span class="tag">accelerator</span><span class="tag">deeptech</span><span class="tag">ai</span><span class="tag">dst</span><span class="tag">nidhi</span></div>
+        </div>
+        <a href="https://dst.gov.in" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+
+    <div class="card" data-category="CSR Opportunity" data-sector="Social Impact" data-state="Central">
+      <div class="card-accent" style="background:#8b5cf6"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#8b5cf620;color:#8b5cf6">CSR Opportunity</span>
+          <span class="source">Tata Trusts</span>
+        </div>
+        <h3 class="card-title"><a href="https://tatatrusts.org" target="_blank" rel="noopener">Tata Trusts CSR Innovation Grant</a></h3>
+        <p class="org">🏢 Tata Trusts</p>
+        <p class="summary">Tata Trusts CSR grant of ₹25L for rural-focused social enterprises in health, education and livelihoods.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 ₹25 Lakh</span>
+            <span class="stat deadline">📅 15 Aug 2025</span>
+            <span class="stat">📍 Central</span>
+          </div>
+          <div class="tags"><span class="tag">csr</span><span class="tag">social</span><span class="tag">ngo</span><span class="tag">health</span><span class="tag">education</span></div>
+        </div>
+        <a href="https://tatatrusts.org" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+
+    <div class="card" data-category="Incubation" data-sector="FinTech" data-state="Gujarat">
+      <div class="card-accent" style="background:#0ea5e9"></div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="badge" style="background:#0ea5e920;color:#0ea5e9">Incubation</span>
+          <span class="source">CIIE.CO</span>
+        </div>
+        <h3 class="card-title"><a href="https://ciie.co" target="_blank" rel="noopener">IIM Ahmedabad CIIE.CO Incubation Call</a></h3>
+        <p class="org">🏢 CIIE.CO / IIM Ahmedabad</p>
+        <p class="summary">IIM-A CIIE flagship incubation with office, mentors and investor network for pre-seed to Series A startups.</p>
+        <div class="card-footer">
+          <div class="card-stats">
+            <span class="stat">💰 Equity-free support</span>
+            <span class="stat deadline">📅 31 July 2025</span>
+            <span class="stat">📍 Gujarat</span>
+          </div>
+          <div class="tags"><span class="tag">incubation</span><span class="tag">iim</span><span class="tag">fintech</span><span class="tag">startup</span></div>
+        </div>
+        <a href="https://ciie.co" target="_blank" rel="noopener" class="apply-btn">Apply / View →</a>
+      </div>
+    </div>
+  <div class="no-results hidden" id="no-results">No opportunities match your filters.</div>
+</div>
+
+<footer>
+  OpportunityRadar · Auto-generated · Data from public sources &amp; LinkedIn ·
+  <a href="https://github.com" style="color:var(--accent)">GitHub</a>
+</footer>
+
+<script>
+  const cards = document.querySelectorAll('.card');
+  const searchEl = document.getElementById('search');
+  const catEl = document.getElementById('filter-cat');
+  const secEl = document.getElementById('filter-sec');
+  const staEl = document.getElementById('filter-sta');
+  const countEl = document.getElementById('result-count');
+  const noRes = document.getElementById('no-results');
+
+  function filterCards() {
+    const q   = searchEl.value.toLowerCase();
+    const cat = catEl.value;
+    const sec = secEl.value;
+    const sta = staEl.value;
+    let visible = 0;
+
+    cards.forEach(card => {
+      const text    = card.textContent.toLowerCase();
+      const cardCat = card.dataset.category;
+      const cardSec = card.dataset.sector;
+      const cardSta = card.dataset.state;
+
+      const match =
+        (!q   || text.includes(q)) &&
+        (!cat || cardCat === cat)  &&
+        (!sec || cardSec === sec)  &&
+        (!sta || cardSta === sta);
+
+      card.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+
+    countEl.textContent = visible + ' result' + (visible !== 1 ? 's' : '');
+    noRes.classList.toggle('hidden', visible > 0);
+  }
+
+  [searchEl, catEl, secEl, staEl].forEach(el => el.addEventListener('input', filterCards));
+  filterCards();
+</script>
+</body>
+</html>
