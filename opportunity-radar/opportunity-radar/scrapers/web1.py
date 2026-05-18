@@ -63,13 +63,39 @@ class DeepSchemeScraper:
         except Exception as e:
             log.debug(f"Skipping {url} due to parsing limit/error: {e}")
 
-    async def run(self):
+async def run(self):
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+            # 1. Launch with arguments that bypass standard sandbox flags
+            browser = await p.chromium.launch(
+                headless=True,
+                args=[
+                    '--disable-blink-features=AutomationControlled',
+                    '--disable-infobars',
+                    '--window-size=1920,1080'
+                ]
+            )
+            
+            # 2. Emulate a complete real-world desktop browser profile
+            context = await browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                viewport={"width": 1920, "height": 1080},
+                extra_http_headers={
+                    "Accept-Language": "en-US,en;q=0.9",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                    "Referer": "https://www.google.com/"
+                }
+            )
+            
             page = await context.new_page()
+            
+            # 3. Explicitly evaluate and delete the navigator.webdriver property 
+            # (This is the primary flag anti-bot systems look for)
+            await page.add_init_script("delete navigator.__proto__.webdriver;")
+            
+            # Execute crawl
             await self.crawl_page(page, self.start_url, depth=1)
             await browser.close()
+            
         return self.extracted_schemes
 
 # ─────────────────────────────────────────────────────────
