@@ -67,7 +67,7 @@ def text_has_keyword(text: str) -> bool:
 TARGETS = [
     {
         "name": "Startup India",
-        "url": "https://www.startupindia.gov.in/content/sih/en/startup-schemes.html",
+        "url": "https://www.startupindia.gov.in/content/sih/en/government-schemes.html",
         "list_selector": "article, .scheme-card, .card",
         "title_selector": "h2, h3, .card-title",
         "desc_selector": "p, .card-body",
